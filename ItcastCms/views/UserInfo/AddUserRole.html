@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>为用户添加角色</title>
+    <script type="text/javascript" src ="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        //提交修改后的表单数据，该方法要在主窗口中调用
+        function SubAddRoleForm() {
+            //把选中的角色信息传给后端
+      /*  let cheId=$("input[name^='che_']").val();
+        console.log(cheId);
+           $.post("/Admin/RoleInfo/EditRole",{"cheId":cheId},function (data) {
+          //调用主窗口中的回调函数
+         window.parent.AfterEdit(data);
+})*/
+            $("#addRoleForm").submit();
+        }
+
+        //定义回调函数
+        function afterEdit(data) {
+            //调用主窗口中的回调函数
+            window.parent.AfterEdit(data);
+        }
+    </script>
+</head>
+<body>
+<form id="addRoleForm"  data-ajax="true" data-ajax-method="post" data-ajax-url="/Admin/UserInfo/EditRole"
+      data-ajax-success="afterEdit" >
+   <!----------设置一个隐藏的userId，让后端知道给谁添加角色信息------------>
+    <input type="hidden" name="userId" value="{{.userName.Id}}"/>
+    <div>为用户<span style="font-size: 16px; color: lightcoral;font-weight: bolder ">{{.userName.UserName}}</span>添加角色</div>
+     {{range .roles}}
+             {{if CheckId $.hasRoles .Id}}
+                     <!---------这里如果通过name区分标记和未标记，name修改后被标记的选框name仍是未标记，无意义-------------->
+         <input type="checkbox"  checked="checked"   name="che_{{.Id}}" value="{{.Id}}"><span>{{.RoleName}}</span><br><br>
+             {{else}}
+                 <input type="checkbox"   name="che_{{.Id}}" value="{{.Id}}"><span>{{.RoleName}}</span><br><br>
+              {{end}}
+             {{end}}
+</form>
+</body>
+</html>

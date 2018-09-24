@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改角色信息</title>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript">
+        //此处使用jquery的ajax方法提交
+        function SubEditForm() {
+            //获取要提交的内容
+            let name=$("#roleNameEdit").val();
+            let remark=$("#roleRemarkEdit").val();
+            let id=$("#roleIdEdit").val();
+            $.post("/Admin/RoleInfo/EditRole",{"editName":name,"editRemark":remark,"editId":id},function (data) {
+                //调用父窗口执行回调函数
+                //注意这是window.,不是form
+                window.parent.AfterEdit(data);
+            })
+        }
+    </script>
+</head>
+<body>
+<form id="editroleForm">
+    <input type="hidden" id="roleIdEdit" value="{{.roleInfo.Id}}">
+<table>
+    <tr>
+        <td>角色名称</td><td><input type="text" id="roleNameEdit" value="{{.roleInfo.RoleName}}"></td>
+    </tr>
+    <tr>
+        <td>角色名称</td><td><input type="text" id="roleRemarkEdit" value="{{.roleInfo.Remark}}"></td>
+    </tr>
+</table>
+</form>
+</body>
+</html>

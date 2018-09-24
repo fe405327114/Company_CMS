@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        //要在父窗口中调用该函数,提交ajax
+     function SubForm() {
+         $("#addroleForm").submit();
+     }
+     //回调函数
+        function afterAdd(data) {
+        //获取父窗口的对象，使之可以使用该回调函数
+            window.parent.AfterAdd(data);
+        }
+    </script>
+</head>
+<body>
+<form id="addroleForm" data-ajax="true" data-ajax-method="post" data-ajax-success="afterAdd"
+      data-ajax-url="/Admin/RoleInfo/AddRole" >
+    <table>
+        <tr>
+            <td>角色名称</td><td><input type="text" name="roleName"></td>
+            </tr>
+        <tr>
+            <td>备注</td><td><input type="text" name="roleRemark"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
