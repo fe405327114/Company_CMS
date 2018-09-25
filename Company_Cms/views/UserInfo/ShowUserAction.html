@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>为用户分配权限</title>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //为选项添加点击事件
+            $(".selectActions").click(function () {
+                setUserAction($(this));
+            });
+            //为删除按钮添加点击事件
+            $(".btnClearActions").click(function () {
+                deleteUserAction($(this));
+            })
+        });
+        //清除权限
+        function deleteUserAction(del) {
+            //获取要删除的权限id
+            let actionId=del.attr("ids");
+            let userId={{.userInfo.Id}};
+            //post请求给后端
+            $.post("/Admin/UserInfo/DeleteUserAction",{"actionId":actionId,"userId":userId},function (data) {
+              if(data.flag=="ok"){
+                  //将对应的按钮选框删除
+                  del.parent().find(".selectActions").removeAttr("checked");
+                  //提示
+                  $.messager.show({
+                      title: '提示',
+                      msg: '权限删除成功!!',
+                      showType: 'show'
+                  })
+              }else{
+                  $.messager.show({
+                      title: '提示',
+                      msg: '权限删除失败',
+                      showType: 'show'
+                  })
+              }
+            })
+        }
+        //提交允许或禁止
+       function setUserAction(sel) {
+           //获取某个对象的属性
+           // let actionId=$(".selectActions").attr("ids");
+           // let actionTypeEnum=$(".selectActions").val();
+           let pars ={
+               actionId:sel.attr("ids"),
+               Ispass:sel.val(),
+               userId:{{.userInfo.Id}}
+           };
+           //发起post请求
+           $.post("/Admin/UserInfo/SetUserAction",pars,function (data) {
+               if(data.flag=="ok"){
+                   $.messager.show({
+                       title: '提示',
+                       msg: '权限分配成功',
+                       showType: 'show'
+                   })
+               }else{
+                   $.messager.show({
+                       title: '提示',
+                       msg: '权限分配失败',
+                       showType: 'show'
+                   })
+               }
+           })
+       }
+    </script>
+</head>
+<body>
+为用户<span style="font-size: 14px;color:red;font-weight: bolder">{{.userInfo.UserName}}</span>分配权限
+<table width="100%">
+    <tr><td>编号</td><td>权限名称</td><td>Url</td><td>操作</td></tr>
+{{range .allActions}}
+    <tr>
+        <td>{{.Id}}</td>
+        <td>{{.ActionInfoName}}</td>
+        <td>{{.Url}}}</td>
+        <td>
+        {{if CheckUserAction $.userExtActions .Id}}
+        {{if CheckUserActionIspass $.userExtActions}}
+            <label for="cba_{{.Id}}">允许</label>
+            <input type="radio" value="1" class="selectActions" name="cba_{{.Id}}" ids="{{.Id}}" checked="checked">
+            <label for="cba_{{.Id}}">禁止</label>
+            <input type="radio" value="0" class="selectActions" name="cba_{{.Id}}" ids="{{.Id}}">
+        {{else}}
+            <label for="cba_{{.Id}}">允许</label>
+            <input type="radio" value="1" class="selectActions" name="cba_{{.Id}}" ids="{{.Id}}" checked="checked">
+            <label for="cba_{{.Id}}">禁止</label>
+            <input type="radio" value="0" class="selectActions" name="cba_{{.Id}}" ids="{{.Id}}" >
+        {{end}}
+        {{else}}
+            <label for="cba_{{.Id}}">允许</label>
+            <input type="radio" value="1" class="selectActions" name="cba_{{.Id}}" ids="{{.Id}}">
+            <label for="cba_{{.Id}}">禁止</label>
+            <input type="radio" value="0" class="selectActions" name="cba_{{.Id}}" ids="{{.Id}}">
+        {{end}}
+            <input type="button" value="删除" class="btnClearActions" ids="{{.Id}}">
+
+        </td>
+    </tr>
+{{end}}
+</table>
+</body>
+</html>

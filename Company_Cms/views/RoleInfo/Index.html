@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+    <link href="/static/css/themes/default/easyui.css" rel="stylesheet" />
+    <link href="/static/css/themes/icon.css" rel="stylesheet" />
+    <script type="text/javascript">
+        $(function () {
+            $("#addroleDiv").css("display","none");
+            $("#editroleDiv").css("display","none");
+            $("#setRoleActionDiv").css("display","none");
+           loadData() 
+        });
+        
+        function loadData() {
+            $('#tt').datagrid({
+                url: '/Admin/RoleInfo/GetRoleInfo',
+                title: '角色数据表格',
+                width: 700,
+                height: 400,
+                fitColumns: true, //列自适应
+                nowrap: false,
+                idField: 'Id',//主键列的列明
+                loadMsg: '正在加载角色的信息...',
+                pagination: true,//是否有分页
+                singleSelect: false,//是否单行选择
+                pageSize: 5,//页大小，一页多少条数据
+                pageNumber: 1,//当前页，默认的
+                pageList: [5, 10, 15],
+                queryParams: {},//往后台传递参数
+                columns: [[//c.UserName, c.UserPass, c.Email, c.RegTime
+                    { field: 'ck', checkbox: true, align: 'left', width: 50 },
+                    { field: 'Id', title: '编号', width: 80 },
+                    { field: 'RoleName', title: '角色', width: 120 },
+
+                    { field: 'Remark', title: '备注', width: 120 },
+                    {
+                        field: 'AddDate', title: '时间', width: 80, align: 'right',
+                        formatter: function (value, row, index) {
+                            return  value.split("T")[0]
+                        }
+                    }
+                ]],
+                toolbar: [{
+                    id: 'btnDelete',
+                    text: '删除',
+                    iconCls: 'icon-remove',
+                    handler: function () {
+                    DeleteRole();
+
+                    }
+                }, {
+                    id: 'btnAdd',
+                    text: '添加',
+                    iconCls: 'icon-add',
+                    handler: function () {
+                         ShowAddRole();
+                    }
+                }, {
+                    id: 'btnEdit',
+                    text: '编辑',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                       ShowEditRole();
+                    }
+                }, {
+                    id: 'btnSetRoleAction',
+                    text: '为角色分配权限',
+                    iconCls: 'icon-edit',
+                    handler: function () {
+                        setRoleAction();
+
+                    }
+                }],
+            });
+        }
+        function setRoleAction() {
+            //判断是否选中一个
+            var rows = $('#tt').datagrid('getSelections');
+            if(rows.length!=1){
+                $.messager.alert("提示","只能选择1个角色进行权限分配!!","error");
+                return;
+            }
+            let roleId=rows[0].Id;
+            $("#setFrame").attr("src","/Admin/RoleInfo/ShowSetRoleAction?roleId="+roleId);
+            $("#setRoleActionDiv").css("display","block");
+            $('#setRoleActionDiv').dialog({
+                title: '为角色分配权限信息',
+                width: 300,
+                height: 300,
+                collapsible: true,
+                maximizable: true,
+                resizable: true,
+                modal: true,
+                buttons: [{
+                    text: 'Ok',
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        //提交表单。
+                        let childWindows=$("#setFrame")[0].contentWindow;//获取子窗体的windows对象。
+                        childWindows.subForm()//提交表单
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function () {
+                        $('#setRoleActionDiv').dialog('close');
+                    }
+                }]
+            });
+        }
+        function  DeleteRole() {
+            //获取要删除的选项
+            let rows=$("#tt").datagrid("getSelections");
+            //可以选取多个，不能不选
+            if(rows.length==0){
+                $.messager.alert("提示","请选择要删除的角色!","error");
+                return
+            }
+              let strRoleId="";
+            for(let i=0;i<rows.length;i++){
+                strRoleId=strRoleId+rows[i].Id+","
+            }
+            //截取最后一个逗号
+            strRoleId.substr(0,strRoleId.length-1);
+            //传给后端
+            $.messager.confirm("Confirm","你确定要删除该角色吗",function (r) {
+                if(r){
+                    $.post("/Admin/RoleInfo/DeleteRole",{"strRoleId":strRoleId},function (data) {
+                       if(data.flag=="ok"){
+                           $.messager.alert("提示","删除角色成功！","info");
+                                   //刷新页面
+                           $("#tt").datagrid("reload");
+                           $("#tt").datagrid("clearSelections");
+                       }else   {
+                           $.messager.alert("提示","删除角色失败","error");
+                       }
+                    })
+                }
+            })
+            
+
+        }
+        function  ShowAddRole() {
+           //设置iframe的src链接
+             $("#addFrame").attr("src","/Admin/RoleInfo/ShowAddRole");
+             //将addroleDiv显示
+             $("#addroleDiv").css("display","block");
+             //显示diallog
+            $("#addroleDiv").dialog({
+                title: '编辑角色信息',
+                width: 300,
+                height: 300,
+                collapsible: true, //可折叠
+                maximizable: true, //最大化
+                resizable: true,//可缩放
+                modal: true,//模态，表示只有将该窗口关闭才能修改页面中其它内容
+                buttons: [{ //按钮组
+                    text: 'Ok',//按钮上的文字
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                     //点击时调用子窗口的提交函数
+                        //[0]将ajax对象转为js对象
+                        let chidrenwindow= $("#addFrame")[0].contentWindow;
+                        chidrenwindow.SubForm();
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function () {
+                        $('#addroleDiv').dialog('close');
+                    }
+                }]
+            });
+        }
+        function ShowEditRole () {
+              //给iframe添加链接返回视图,将id给后端
+            let row=$("#tt").datagrid("getSelections");
+            //判断是否选中一个
+            if (row.length!=1){
+                $.messager.alert("提示","请选中一条信息进行修改！","error")
+                return
+            }
+            let id=row[0].Id;
+            $("#editFrame").attr("src","/Admin/RoleInfo/ShowEditRole?id="+id);
+            $("#editroleDiv").css("display","block");
+            //显示diallog
+            $("#editroleDiv").dialog({
+                title: '编辑角色信息',
+                width: 300,
+                height: 300,
+                collapsible: true, //可折叠
+                maximizable: true, //最大化
+                resizable: true,//可缩放
+                modal: true,//模态，表示只有将该窗口关闭才能修改页面中其它内容
+                buttons: [{ //按钮组
+                    text: 'Ok',//按钮上的文字
+                    iconCls: 'icon-ok',
+                    handler: function () {
+                        //点击时调用子窗口的提交函数
+                        //[0]将ajax对象转为js对象
+                       $("#editFrame")[0].contentWindow.SubEditForm();
+                    }
+                }, {
+                    text: 'Cancel',
+                    handler: function () {
+                        $('#editroleDiv').dialog('close');
+                    }
+                }]
+            });
+        }
+        //操作回调函数
+        function AfterAdd(data){
+          if(data.flag=="ok"){
+              $.messager.alert("提示","插入角色信息成功!","info");
+              //关闭窗口
+              $("#addroleDiv").dialog("close");
+              //刷新页面
+              $("#tt").datagrid("reload");
+          }
+        }
+        function AfterEdit(data) {
+            if (data.flag=="ok"){
+                $.messager.alert("提示","更新角色信息成功!","info");
+                //关闭窗口
+                $("#editroleDiv").dialog("close");
+                //刷新页面
+                $("#tt").datagrid("reload");
+            }else{
+                $.messager.alert("提示","更新角色信息失败!","error")
+            }
+        }
+        function afteActionrSet(data) {
+           if (data.flag=="ok"){
+               $.messager.alert("提示","为角色分配权限成功！","info");
+               //关闭窗口
+               $("#setRoleActionDiv").dialog("close");
+               //刷新页面
+               $("#tt").datagrid("reload");
+           }else{
+               $.messager.alert("提示","为角色分配权限失败","error")
+           }
+        }
+    </script>
+</head>
+<body>
+<table id="tt" style="width: 700px;" title="标题，可以使用代码进行初始化，也可以使用这种属性的方式" iconcls="icon-edit">
+</table>
+
+<div id="addroleDiv">
+    {{/*设置一个嵌入的分页面,点击时设置src*/}}
+    <iframe id="addFrame" width="100%" height="%100%"  frameborder="0"></iframe>
+</div>
+<div id="editroleDiv">
+    <iframe  id="editFrame" frameborder="0" width="100%" height="100%" ></iframe>
+</div>
+<!------------为角色分配权限--------------->
+<div id="setRoleActionDiv">
+    <iframe id="setFrame" frameborder="0" width="100%" height="100%"></iframe>
+</div>
+</body>
+</html>
