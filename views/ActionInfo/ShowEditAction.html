@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑用户权限</title>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript" src="/static/js/MyAjaxForm.js"></script>
+</head>
+<script type="text/javascript">
+    $(function () {
+        bindchangeActionTypeEnum();//绑定权限类别对话框
+        bindBtnFileUp();
+    });
+
+    function subActionForm() {
+        $("#editActionForm").submit();
+    }
+    //定义回调函数
+    function afterEdit(data) {
+        //调用父窗口回调函数
+        window.parent.AfterEdit(data);
+    }
+    //给权限类型绑定改变事件
+    function bindchangeActionTypeEnum() {
+        $("#changeActionTypeEnum").change(function () {
+            if ($(this).val() == "1") {
+                $("#iconTr").fadeIn();
+            } else {
+                $("#iconTr").fadeOut();
+            }
+        })
+    }
+    //绑定上传图片的点击事件
+    function bindBtnFileUp() {
+        $("#btnFileUp").click(function () {
+            //发送post请求
+            $("#editActionForm").ajaxSubmit({
+                success: function (str) {
+                    if (str.flag == "ok") {
+                        $.messager.alert("提示", "上传图片成功", "info");
+                        $("#showImage").html("<img src='" + str.msg.substr(1) + "' width='50px' height='50px'>");
+                        $("#hiddenMenuIcon").val(str.msg.substr(1))//注意服务端返回的内容是带“.”的
+
+                    } else {
+                        $.messager.alert("提示", "上传图片失败", "error");
+                    }
+                },
+                error: function (error) {
+                    alert(error);
+                },
+                url: '/Admin/ActionInfo/FileUp', /*设置post提交到的页面*/
+                type: "post", /*设置表单以post方法提交*/
+                dataType: "json" /*设置返回值类型为文本*/
+            });
+        });
+    }
+
+</script>
+
+<body>
+<form data-ajax="true" data-ajax-method="post" data-ajax-success="afterEdit"
+      data-ajax-url="/Admin/ActionInfo/EditAction" id="editActionForm">
+    <input type="hidden" name="Id" value="{{.actionInfo.Id}}">
+    <input type="hidden" name="MenuIcon" id="hiddenMenuIcon"  value="{{.actionInfo.MenuIcon}}"/>
+<table>
+<tr>
+    <td>权限名称</td>
+<td>
+        <input type="text" name="ActionInfoName" value="{{.actionInfo.ActionInfoName}}"/></td>
+</tr>
+    <tr>
+        <td>Url</td>
+        <td>
+            <input type="text" name="Url" value="{{.actionInfo.Url}}"/></td>
+    </tr>
+    <tr>
+        <td>请求方式</td>
+        <td>
+            <select name="HttpMethod" value="{{.actionInfo.HttpMethod}}">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+            </select>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td>权限类型</td>
+        <td>
+            <select name="ActionTypeEnum" id="changeActionTypeEnum" value="{{.actionInfo.ActionTypeEnum}}">
+                <option value="0">普通权限</option>
+                <option value="1">菜单权限</option>
+            </select>
+
+        </td>
+    </tr>
+
+    <tr style="display:none" id="iconTr">
+        <td>上传图标</td>
+        <td>
+            <input type="file" name="fileUp"/>
+            <input type="button" value="上传图片" id="btnFileUp"/>
+            <div id="showImage"></div>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td>备注</td>
+        <td>
+            <input type="text" name="Remark" value="{{.actionInfo.Remark}}"/></td>
+    </tr>
+
+</table>
+</form>
+</body>
+</html>
