@@ -47,6 +47,15 @@ func init() {
 	beego.Router("/Admin/Home/WindowIndex",&controllers.HomeController{},"get:WindowIndex")
 	beego.Router("/Admin/Home/MenuSelect",&controllers.HomeController{},"post:MenuSelect")
 
+	//----------------------------------新闻类别---------------------------------------
+	beego.Router("/Admin/ArticelClass/Index",&controllers.ArticelClassController{},"get:Index")
+	beego.Router("/Admin/ArticelClass/ShowAddParent",&controllers.ArticelClassController{},"get:ShowAddParent")
+	beego.Router("/Admin/ArticelClass/AddParentClass",&controllers.ArticelClassController{},"post:AddParentClass")
+	beego.Router("/Admin/ArticelClass/ShowArticelClass",&controllers.ArticelClassController{},"post:ShowArticelClass")
+	beego.Router("/Admin/ArticelClass/ShowAddChildClass",&controllers.ArticelClassController{},"get:ShowAddChildClass")
+	beego.Router("/Admin/ArticelClass/AddChildClass",&controllers.ArticelClassController{},"post:AddChildClass")
+	beego.Router("/Admin/ArticelClass/ShowChildClass",&controllers.ArticelClassController{},"post:ShowChildClass")
+
 	//------------------登录页面--------------------------
 	beego.Router("/Login",&controllers.LoginController{},"get:Index")
     beego.Router("/Login/UserLogin",&controllers.LoginController{},"post:UserLogin")

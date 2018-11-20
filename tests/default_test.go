@@ -6,8 +6,7 @@ import (
 	"testing"
 	"runtime"
 	"path/filepath"
-	_ "ItcastCms/routers"
-
+	_ "Company_CMS/routers"
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
 )

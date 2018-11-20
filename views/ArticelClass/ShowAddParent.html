@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加根类别</title>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script type="text/javascript">
+        function SubForm() {
+            $("#addForm").submit();
+        }
+        function afterAdd(data) {
+            window.parent.afterAdd(data);
+        }
+    </script>
+</head>
+<body>
+<form data-ajax="true" data-ajax-method="post" data-ajax-success="afterAdd" data-ajax-url="/Admin/ArticelClass/AddParentClass" id="addForm">
+    <table>
+        <tr><td>类别名</td><td><input type="text" name="className"></td></tr>
+        <tr><td>备注</td><td><input type="text" name="remark"></td></tr>
+    </table>
+</form>
+</body>
+</html>
